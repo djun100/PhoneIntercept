@@ -3,8 +3,10 @@
           package="com.cy.phoneintercept">
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--监听用户拨出电话-->
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
-
+    <!--接听、挂机，询问状态下不好使，允许状态下才能挂机-->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
 
     <application
