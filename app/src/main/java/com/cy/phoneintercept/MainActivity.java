@@ -2,11 +2,15 @@ package com.cy.phoneintercept;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Toast;
 
+import com.cy.util.Log;
+import com.cy.util.UtilContext;
 import com.cy.core.OnPhoneListener;
 import com.cy.core.UPhone;
 import com.cy.utils.UPermission;
@@ -36,6 +40,13 @@ public class MainActivity extends Activity {
             }
         });
 
+        findViewById(R.id.mbtnLaunchApp).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         setPhoneListener();
     }
 
@@ -43,6 +54,13 @@ public class MainActivity extends Activity {
         UPhone.setOnPhoneListener(new OnPhoneListener() {
             @Override
             public String onOutgoingCall(String incomingNumber) {
+
+//                UtilApp.bringToFront();
+
+/*                if (incomingNumber.equals("1")){
+                    return "10010";
+                }*/
+
                 return OnPhoneListener.V_CANCEL_DIAL;
             }
 
@@ -82,4 +100,18 @@ public class MainActivity extends Activity {
                 .start();
     }
 
+    /**
+     * 启动App
+     */
+    public static void launchApp(String packageName) {
+        Context context = UtilContext.getContext();
+        // 判断是否安装过App，否则去市场下载
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            Log.w("打开其他APP");
+        }
+
+    }
 }

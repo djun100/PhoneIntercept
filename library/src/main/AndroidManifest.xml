@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.cy.phoneintercept.library"
+    >
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--监听用户拨出电话-->
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <!--接听、挂机，询问状态下不好使，允许状态下才能挂机-->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <application>
+
+        <receiver android:name="com.cy.core.PhoneReceiver">
+            <intent-filter>
+                <!-- 获取来电广播 -->
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <!-- 获取去电广播 -->
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

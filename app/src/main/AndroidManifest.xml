@@ -2,12 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.cy.phoneintercept">
 
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <!--监听用户拨出电话-->
-    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
-    <!--接听、挂机，询问状态下不好使，允许状态下才能挂机-->
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.GET_TOP_ACTIVITY_INFO"/>
+    <uses-permission android:name="android.permission.REORDER_TASKS"/>
 
     <application
         android:allowBackup="true"

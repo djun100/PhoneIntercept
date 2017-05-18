@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.IBinder;
 
 import com.android.internal.telephony.ITelephony;
-import com.cy.app.Log;
+import com.cy.util.Log;
 
 import java.lang.reflect.Method;
 

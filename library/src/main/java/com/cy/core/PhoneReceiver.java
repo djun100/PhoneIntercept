@@ -8,7 +8,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
-import com.cy.app.Log;
+import com.cy.util.Log;
 
 
 public class PhoneReceiver extends BroadcastReceiver {
@@ -21,7 +21,7 @@ public class PhoneReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         Log.e(UPhone.LOG_PHONE,action);
 
-        com.cy.app.Log.printBundle(intent.getExtras());
+        Log.printBundle(intent.getExtras());
 
         //拨打电话
         if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
@@ -41,7 +41,7 @@ public class PhoneReceiver extends BroadcastReceiver {
             TelephonyManager tm = (TelephonyManager) context.getSystemService(Service.TELEPHONY_SERVICE);
 
             int callState=tm.getCallState();
-            com.cy.app.Log.w(UPhone.LOG_PHONE,"callState:"+callState);
+            Log.w(UPhone.LOG_PHONE,"callState:"+callState);
 
             tm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
         }

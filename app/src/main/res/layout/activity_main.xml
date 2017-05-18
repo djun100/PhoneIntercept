@@ -17,4 +17,11 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="打开权限设置页"/>
+
+    <Button
+        android:id="@+id/mbtnLaunchApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="打开其他APP"/>
 </LinearLayout>
