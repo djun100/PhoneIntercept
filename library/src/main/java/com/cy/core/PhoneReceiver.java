@@ -55,7 +55,7 @@ public class PhoneReceiver extends BroadcastReceiver {
                 case TelephonyManager.CALL_STATE_RINGING:
                     incomingFlag = true;
                     Log.i(UPhone.LOG_PHONE, "CALL IN RINGING :" + incomingNumber);
-                    UPhone.rejectCall();
+//                    UPhone.rejectCall();
                     mOnPhoneListener.onRing(incomingNumber);
                     break;
                 //电话接听
