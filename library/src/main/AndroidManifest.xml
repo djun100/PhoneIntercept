@@ -12,11 +12,11 @@
     <application>
 
         <receiver android:name="com.cy.core.PhoneReceiver">
-            <intent-filter>
-                <!-- 获取来电广播 -->
-                <action android:name="android.intent.action.PHONE_STATE" />
-                <!-- 获取去电广播 -->
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
+            </intent-filter>
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.PHONE_STATE"/>
             </intent-filter>
         </receiver>
 

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
 import com.cy.io.UtilLog;
 
@@ -34,10 +35,18 @@ import com.cy.io.UtilLog;
  */
 public class PhoneReceiver extends BroadcastReceiver {
     private static boolean incomingFlag = false;
-
+    private static String outgoingNumber;
     private static OnPhoneListener mOnPhoneListener;
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        String action = intent.getAction();
+        if (action.equals("android.intent.action.NEW_OUTGOING_CALL")) {
+            outgoingNumber = intent.getStringExtra("android.intent.extra.PHONE_NUMBER");
+
+        }else if (action.equals("android.intent.action.PHONE_STATE")) {
+            outgoingNumber = intent.getStringExtra("incoming_number");
+        }
 
         TelephonyManager tm = (TelephonyManager) context
                 .getSystemService(Service.TELEPHONY_SERVICE);
@@ -67,10 +76,11 @@ public class PhoneReceiver extends BroadcastReceiver {
                             mOnPhoneListener.onCallInAccept(number);
                         }
                     }else {
-                        //360手机第一次回调可以获取到，infinix获取不到
-                        UtilLog.e("OUTGOING CALL:" + number);
+                        UtilLog.e("OUTGOING CALL:" + outgoingNumber);
                         if (mOnPhoneListener != null) {
-                            mOnPhoneListener.onOutgoingCall(number);
+                            mOnPhoneListener.onOutgoingCall(outgoingNumber);
+                        }else {
+                            UtilLog.e("mOnPhoneListener null");
                         }
                     }
                     break;
@@ -84,9 +94,11 @@ public class PhoneReceiver extends BroadcastReceiver {
                     }else {
                         UtilLog.e( "OUTCALL HANG UP");
                         if (mOnPhoneListener!=null) {
-                            mOnPhoneListener.onOutCallHangUp(number);
+                            mOnPhoneListener.onOutCallHangUp(outgoingNumber);
+                            outgoingNumber=null;
                         }else {
                             UtilLog.e("mOnPhoneListener null");
+                            outgoingNumber=null;
                         }
                     }
                     break;
