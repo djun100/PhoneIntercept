@@ -6,11 +6,32 @@ import android.content.Context;
 import android.content.Intent;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 
-import com.cy.util.Log;
+import com.cy.io.UtilLog;
 
-
+/**
+ * 1、onReceive中，String action = intent.getAction();取到的值因手机而异，
+ * infinix全为android.intent.action.PHONE_STATE，
+ * 360手机外拨的时候可以取到android.intent.action.NEW_OUTGOING_CALL，
+ * 其他都为android.intent.action.PHONE_STATE
+ * 2、intent.getExtras()取到的值因手机而异，infix与360取到的值分别为：
+ //outcall:          incoming_number:10010;state:OFFHOOK;
+ //outcall hungup:   incoming_number:10010;state:IDLE;
+ //callin:           incoming_number:17640396946;state:RINGING;
+ //callin idle:      incoming_number:17640396946;state:IDLE;
+ //360 outcall:      android.intent.extra.PHONE_NUMBER:10010;
+ 3、infinix不可以获取外拨电话，360手机可以通过
+ String phoneNum = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
+ String phoneNum2=getResultData();//得到外拔电话
+ 360手机可以通过setResultData(reSetedPhoneNumber);重设外拨号码，传null则挂断外拨电话
+ 4、可以通过TelephonyManager实例而不通过listener直接获取呼入呼出状态
+ TelephonyManager tm = (TelephonyManager) context.getSystemService(Service.TELEPHONY_SERVICE);
+ int callState = tm.getCallState();
+ //outcall:          callState:CALL_STATE_OFFHOOK 2
+ //outcall hungup:   callState:CALL_STATE_IDLE 0
+ //callin:           callState:CALL_STATE_RINGING 1
+ //callin idle:      callState:CALL_STATE_IDLE 0
+ */
 public class PhoneReceiver extends BroadcastReceiver {
     private static boolean incomingFlag = false;
 
@@ -18,58 +39,55 @@ public class PhoneReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        String action = intent.getAction();
-        Log.e(UPhone.LOG_PHONE,action);
+        TelephonyManager tm = (TelephonyManager) context
+                .getSystemService(Service.TELEPHONY_SERVICE);
+        tm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
 
-        Log.printBundle(intent.getExtras());
-
-        //拨打电话
-        if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
-            incomingFlag = false;
-
-            String phoneNum = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
-            String phoneNum2=getResultData();//得到外拔电话
-
-            String reSetedPhoneNumber= mOnPhoneListener.onOutgoingCall(phoneNum);
-
-            if (reSetedPhoneNumber==null){
-                setResultData(null); //清除电话，广播被传给系统的接收者后，因为电话为null，取消电话拔打
-            }else if (!TextUtils.isEmpty(reSetedPhoneNumber)){
-                 setResultData(reSetedPhoneNumber);
-            }
-        } else {
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(Service.TELEPHONY_SERVICE);
-
-            int callState=tm.getCallState();
-            Log.w(UPhone.LOG_PHONE,"callState:"+callState);
-
-            tm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-        }
     }
     final PhoneStateListener listener=new PhoneStateListener(){
         @Override
-        public void onCallStateChanged(int state, String incomingNumber) {
-            super.onCallStateChanged(state, incomingNumber);
+        public void onCallStateChanged(int state, String number) {
+            super.onCallStateChanged(state, number);
             switch(state){
                 //电话等待接听
                 case TelephonyManager.CALL_STATE_RINGING:
                     incomingFlag = true;
-                    Log.i(UPhone.LOG_PHONE, "CALL IN RINGING :" + incomingNumber);
+                    //CALL IN RINGING :17640396946
+                    UtilLog.e( "CALL IN RINGING :" + number);
 //                    UPhone.rejectCall();
-                    mOnPhoneListener.onRing(incomingNumber);
+                    if (mOnPhoneListener!=null) {
+                        mOnPhoneListener.onRing(number);
+                    }
                     break;
                 //电话接听
                 case TelephonyManager.CALL_STATE_OFFHOOK:
                     if (incomingFlag) {
-                        Log.i(UPhone.LOG_PHONE, "CALL IN ACCEPT :" + incomingNumber);
-                        mOnPhoneListener.onCallInAccept(incomingNumber);
+                        UtilLog.e( "CALL IN ACCEPT :" + number);
+                        if (mOnPhoneListener!=null) {
+                            mOnPhoneListener.onCallInAccept(number);
+                        }
+                    }else {
+                        //360手机第一次回调可以获取到，infinix获取不到
+                        UtilLog.e("OUTGOING CALL:" + number);
+                        if (mOnPhoneListener != null) {
+                            mOnPhoneListener.onOutgoingCall(number);
+                        }
                     }
                     break;
                 //电话挂机
                 case TelephonyManager.CALL_STATE_IDLE:
                     if (incomingFlag) {
-                        Log.i(UPhone.LOG_PHONE, "CALL IDLE");
-                        mOnPhoneListener.onCallInHangUp();
+                        UtilLog.e( "CALL IN IDLE");
+                        if (mOnPhoneListener!=null) {
+                            mOnPhoneListener.onCallInHangUp();
+                        }
+                    }else {
+                        UtilLog.e( "OUTCALL HANG UP");
+                        if (mOnPhoneListener!=null) {
+                            mOnPhoneListener.onOutCallHangUp(number);
+                        }else {
+                            UtilLog.e("mOnPhoneListener null");
+                        }
                     }
                     break;
             }

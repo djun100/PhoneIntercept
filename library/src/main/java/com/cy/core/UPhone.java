@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.IBinder;
 
 import com.android.internal.telephony.ITelephony;
-import com.cy.util.Log;
+import com.cy.io.UtilLog;
 
 import java.lang.reflect.Method;
 
@@ -14,14 +14,13 @@ import java.lang.reflect.Method;
  */
 
 public class UPhone {
-    public static boolean LOG_PHONE=true;
 
     public static void setOnPhoneListener(OnPhoneListener onPhoneListener){
         PhoneReceiver.setOnPhoneListener(onPhoneListener);
     }
 
     public static void rejectCall() {
-        Log.w("挂机");
+        UtilLog.w("挂机");
         try {
             Method method = Class.forName("android.os.ServiceManager")
                     .getMethod("getService", String.class);
@@ -29,7 +28,7 @@ public class UPhone {
             ITelephony telephony = ITelephony.Stub.asInterface(binder);
             telephony.endCall();
         } catch (Exception e) {
-            Log.e(e.getMessage());
+            UtilLog.e(e.getMessage());
         }
     }
 

@@ -14,6 +14,7 @@ public abstract class OnPhoneListener {
     public String onOutgoingCall(String incomingNumber){
         return V_GO_ON;
     }
+    public abstract void onOutCallHangUp(String incomingNumber);
     public abstract void onRing(String incomingNumber);
     public abstract void onCallInAccept(String incomingNumber);
     public abstract void onCallInHangUp();
