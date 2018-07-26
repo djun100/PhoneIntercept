@@ -133,7 +133,7 @@ public class MyService extends Service {
 
             Notification notification = new Notification
                     .Builder(this,"im_channel_id")
-                    .setSmallIcon(R.drawable.notification)  // the status icon
+//                    .setSmallIcon(R.drawable.notification)  // the status icon，需要用半透明图片
                     .setWhen(System.currentTimeMillis())  // the time stamp
                     .setContentText("服务正在运行")  // the contents of the entry
                     .build();
