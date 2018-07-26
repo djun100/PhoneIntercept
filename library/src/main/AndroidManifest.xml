@@ -11,6 +11,7 @@
 
     <application>
 
+        <!--todo_cy android:process=":remote"-->
         <receiver android:name="com.cy.core.PhoneReceiver">
             <intent-filter android:priority="2147483647">
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
@@ -19,6 +20,37 @@
                 <action android:name="android.intent.action.PHONE_STATE"/>
             </intent-filter>
         </receiver>
+
+        <!--todo_cy android:process=":remote"-->
+        <receiver
+            android:name="com.cy.core.WakeUpReceiver"
+            >
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+                <action android:name="com.xdandroid.hellodaemon.CANCEL_JOB_ALARM_SUB" />
+            </intent-filter>
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <!--todo_cy android:process=":remote"-->
+        <service
+            android:name="com.cy.core.MyService"
+            android:configChanges="locale"
+            android:enabled="true"
+            android:exported="false"
+
+            ></service>
 
     </application>
 

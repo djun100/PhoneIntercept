@@ -15,10 +15,6 @@ import java.lang.reflect.Method;
 
 public class UPhone {
 
-    public static void setOnPhoneListener(OnPhoneListener onPhoneListener){
-        PhoneReceiver.setOnPhoneListener(onPhoneListener);
-    }
-
     public static void rejectCall() {
         UtilLog.w("挂机");
         try {
