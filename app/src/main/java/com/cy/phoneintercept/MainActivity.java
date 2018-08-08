@@ -2,10 +2,13 @@ package com.cy.phoneintercept;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,7 +20,7 @@ import com.yanzhenjie.permission.PermissionListener;
 import java.util.List;
 
 public class MainActivity extends Activity {
-
+    final PhoneStateListener mPhoneStateListener=new MyPhoneListener();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,9 +47,17 @@ public class MainActivity extends Activity {
             }
         });
 
+        TelephonyManager tm = (TelephonyManager) getSystemService(Service.TELEPHONY_SERVICE);
+        tm.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
-
+    private class MyPhoneListener extends PhoneStateListener{
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            super.onCallStateChanged(state, incomingNumber);
+            Log.w("state:"+state+" incomingNumber:"+incomingNumber);
+        }
+    }
 
     private void doPermission() {
         AndPermission.with(MainActivity.this)

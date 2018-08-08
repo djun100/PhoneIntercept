@@ -50,7 +50,7 @@ public class PhoneReceiver extends BroadcastReceiver {
 
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
         String incoming_number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
-        if (state != null) {
+        if (state != null && incoming_number != null) {
             handleState(state, incoming_number);
         }
     }
