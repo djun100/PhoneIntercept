@@ -43,13 +43,32 @@ public class PhoneReceiver extends BroadcastReceiver {
     public static final String PHONE_EVENT_CALLIN_HANGUP = "CallInHangUp";
     public static final String PHONE_EVENT_OUTCALL_HANGUP = "OutCallHangUp";
 
+
+    /**when make a outgoing call and staying on select card ui,receive first intent:
+     * intent:Intent { act=android.intent.action.NEW_OUTGOING_CALL flg=0x11000010
+     * cmp=com.sh.smart.caller/com.smartcaller.receiver.PhoneReceiver (has extras) }
+     * EXTRA: android.intent.extra.PHONE_NUMBER:10010;
+     *
+     * when outgoing call is calling ,receive the second intent:
+     * intent:Intent { act=android.intent.action.PHONE_STATE flg=0x1000010
+     * cmp=com.sh.smart.caller/com.smartcaller.receiver.PhoneReceiver (has extras) }
+     * EXTRA: incoming_number:10010;state:OFFHOOK;
+     * @param context
+     * @param intent
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.w("intent:" + UtilLog.intentToString(intent));
-        mContext = context;
 
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
         String incoming_number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
+
+        if (TextUtils.isEmpty(state)) {
+            if ("android.intent.action.NEW_OUTGOING_CALL".equals(intent.getAction())){
+                state="OFFHOOK";
+                incoming_number=intent.getStringExtra("android.intent.extra.PHONE_NUMBER");
+            }
+        }
         if (state != null && incoming_number != null) {
             handleState(state, incoming_number);
         }
