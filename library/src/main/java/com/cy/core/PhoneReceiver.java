@@ -12,6 +12,9 @@ import android.text.TextUtils;
 import com.cy.io.Log;
 import com.cy.io.UtilLog;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 1、onReceive中，String action = intent.getAction();取到的值因手机而异，
  * infinix全为android.intent.action.PHONE_STATE，
@@ -42,7 +45,7 @@ public class PhoneReceiver extends BroadcastReceiver {
     public static final String PHONE_EVENT_OUTGOING_CALL = "OUTGOING CALL";
     public static final String PHONE_EVENT_CALLIN_HANGUP = "CallInHangUp";
     public static final String PHONE_EVENT_OUTCALL_HANGUP = "OutCallHangUp";
-
+    public static final String PHONE_EVENT_NEW_OUTGOING_CALL = "NEW_OUTGOING_CALL";
 
     /**when make a outgoing call and staying on select card ui,receive first intent:
      * intent:Intent { act=android.intent.action.NEW_OUTGOING_CALL flg=0x11000010
@@ -53,6 +56,12 @@ public class PhoneReceiver extends BroadcastReceiver {
      * intent:Intent { act=android.intent.action.PHONE_STATE flg=0x1000010
      * cmp=com.sh.smart.caller/com.smartcaller.receiver.PhoneReceiver (has extras) }
      * EXTRA: incoming_number:10010;state:OFFHOOK;
+     *
+     * vivo:
+     * vivo phone when outgoing hungup will receive two samele idle state:
+     * intent:Intent { act=android.intent.action.PHONE_STATE flg=0x10 cmp=com.sh.smart.caller/
+     * com.smartcaller.receiver.PhoneReceiver (has extras) }
+     * EXTRA: incoming_number:17640396946;state:IDLE;
      * @param context
      * @param intent
      */
@@ -73,12 +82,26 @@ public class PhoneReceiver extends BroadcastReceiver {
             handleState(state, incoming_number);
         }
     }
+    /**
+     * multi calling sceen numbers must be diffrent
+     */
+    private static Set<String> mNumbersSet =new HashSet<>();
 
     private void handleState(String state, String number) {
 
         switch (state) {
             //电话等待接听
             case "RINGING":
+                //multi calling do not pop floatwindow
+                if (!mNumbersSet.isEmpty() && !mNumbersSet.contains(number)
+                        || mNumbersSet.size() > 1){
+                    mNumbersSet.add(number);
+                    Log.w("flow--stopService");
+                    MyService.stopService(mContext);
+                    return;
+                }else {
+                    mNumbersSet.add(number);
+                }
                 incomingFlag=true;
                 UtilLog.e("CALL IN RINGING :" + number);
 
@@ -90,6 +113,16 @@ public class PhoneReceiver extends BroadcastReceiver {
                 break;
 
             case "OFFHOOK":
+                //multi calling do not pop floatwindow
+                if (!mNumbersSet.isEmpty() && !mNumbersSet.contains(number)
+                        || mNumbersSet.size() > 1){
+                    mNumbersSet.add(number);
+                    Log.w("flow--stopService");
+                    MyService.stopService(mContext);
+                    return;
+                }else {
+                    mNumbersSet.add(number);
+                }
                 if (incomingFlag) {
                     //电话接听
                     UtilLog.e("CALL IN ACCEPT :" + number);
@@ -109,8 +142,34 @@ public class PhoneReceiver extends BroadcastReceiver {
                     MyService.startFloatWindowService(mContext, bundle2);
                 }
                 break;
+            case PhoneReceiver.PHONE_EVENT_NEW_OUTGOING_CALL:
+                //multi calling sceen,when dial the second call will not receive offhook
+                // state but only new outgoingcall state
+                //multi calling do not pop floatwindow
+                if (!mNumbersSet.isEmpty() && !mNumbersSet.contains(number)
+                        || mNumbersSet.size() > 1){
+                    Log.w("flow--stopService");
+                    mNumbersSet.add(number);
+                    MyService.stopService(mContext);
+                    return;
+                }else {
+                    mNumbersSet.add(number);
+                }
+                break;
             //电话挂机
             case "IDLE":
+                //multi calling do not pop floatwindow
+                //vivo receives two idle states when outgoing hungup
+                if ((!mNumbersSet.isEmpty() && !mNumbersSet.contains(number))
+                        || mNumbersSet.size() > 1) {
+                    Log.w("flow--stopService");
+                    mNumbersSet.clear();
+                    MyService.stopService(mContext);
+                    return;
+                }
+                mNumbersSet.clear();
+
+
                 if (incomingFlag) {
                     incomingFlag = false;
                     UtilLog.e("CALL IN IDLE number:" + number);
